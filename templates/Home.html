@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Page Title</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://kit.fontawesome.com/d369c7dbb5.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      background-color: #F1F1F1;
+    }
+    .navbar {
+      background-color: #313131;
+      padding: 15px;
+      width: 12rem;
+      display: block;
+      height: 100%;
+      text-align: center;
+      position: fixed;
+      
+    }
+    .navbar-logo {
+      width: 100px; 
+      margin-bottom: 20px;
+    }
+    .navbar-links {
+      margin-top: 0; 
+      color: #fff; 
+      list-style: none;
+      padding: 0; 
+    }
+    .navbar-links a {
+      color: #fff; 
+      text-decoration: none;
+      display: block; 
+      padding: 10px;
+       
+    }
+    
+    .navbar-links a:hover {
+      background-color: black; 
+      width: 10rem;
+      display: block;
+      box-sizing: border-box; 
+    }
+    .page-content {
+      margin-left: 12rem;
+      padding: 15px;
+    }
+    .box {
+      height: 8rem; 
+      width: 100%; 
+      display: flex;
+      align-items: center;
+      text-align: left;
+      position: relative;
+      margin-right: 1rem;
+    }
+    .box .content {
+      flex: 1;
+      color: white;
+      font-size: 1rem;
+      margin-top: 1rem;
+      margin-left: 2rem;
+    }
+    .box i {
+      font-size: 6rem;
+      color: #fff;
+      margin-right: 4rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3 navbar">
+        <img src="{% static 'images/pexels-thought-catalog-2228557.jpg' %}" alt="Your Logo" class="navbar-logo img-fluid">
+        <div class="navbar-links">
+          <ul class="list-unstyled">
+            <li><a href="{% url 'authors' %}">Author</a></li>
+            <li><a href="{% url 'books' %}">Books</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-9 page-content"> 
+        <div class="container">
+          <div class="container" style="margin-bottom: 1rem;">
+            <div class="d-flex justify-content-end mt-2 mr-2">
+              <div class="user-info">
+                {% if user.is_authenticated %}
+                  <img src="{% static 'images/pexels-thought-catalog-2228557.jpg' %}" alt="Profile" style="width: 3rem; height: 3rem;" class="rounded-circle"> 
+                  <span style="margin-left: 8px;">{{ user.username }} <span style="color: #777;">|</span> <a href="{% url 'logout' %}">Logout</a></span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+      
+          {% comment %} <div class="container">
+            <div class="d-flex">
+              <!-- Left Box (light blue) -->
+              <div class="box mr-2.5" style="background: linear-gradient(to right, #64C2DC, #DBA9FE);">
+                <!-- Text in the left box -->
+                <div class="content">
+                  <p>TOTAL AUTHORS</p>
+                  <p style="font-size: 3rem; margin-top: -1rem;">{{ author_count }}</p>
+                </div>
+                <!-- Icon in the left box with blend mode -->
+                <i class="fa-solid fa-pen-nib"></i>
+              </div>
+              <!-- Right Box (light rose) -->
+              <div class="box" style="background: linear-gradient(to right, #E56F8F, #CD8FD6);">
+                <!-- Text in the right box -->
+                <div class="content">
+                  <p>Total Books</p>
+                  <p style="font-size: 3rem; margin-top: -1rem;">{{ book_count }}</p>
+                </div>
+                <!-- Icon in the right box with blend mode -->
+                <i class="fa-solid fa-book-open"></i>
+              </div>
+            </div>
+          </div>
+        </div> {% endcomment %}
+
+        {% block body %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+  
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

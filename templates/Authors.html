@@ -1,0 +1,227 @@
+{% extends 'Home.html' %}
+{% load static %}
+{% block body %}
+<style>
+    
+    .input {
+        border: none;
+        outline: none;
+        border-bottom: 1px solid grey;
+        width: 100%; 
+        margin-bottom: 10px;
+    }
+    .input::placeholder {
+        font-color: black;
+        font-weight: 600;
+    }
+    table {
+        background-color: white;
+        width: 100%;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="box" style="background: linear-gradient(to right, #64C2DC, #DBA9FE);">
+                <div class="content">
+                    <p>TOTAL AUTHORS</p>
+                    <p style="font-size: 3rem; margin-top: -1rem;">{{ author_count }}</p>
+                </div>
+                <i class="fa-solid fa-pen-nib"></i>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="box" style="background: linear-gradient(to right, #E56F8F, #CD8FD6);">
+                <div class="content">
+                    <p>TOTAL BOOKS</p>
+                    <p style="font-size: 3rem; margin-top: -1rem;">{{ book_count }}</p>
+                </div>
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row justify-content-between mt-3 ml-3 mr-3">
+        <form method="GET" action="{% url 'authors' %}" class="d-flex">
+            <div class="input-group" style="width: 25rem;margin-left:-1rem;">
+                <input type="text" class="form-control" name="search" placeholder="Search author..." aria-label="Search author" aria-describedby="searchIcon" style="border-radius: 20px; padding-left: 10px;">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="searchIcon" style="background-color: transparent; border: none;margin-bottom:2rem;">
+                        <i class="fas fa-search" style="color: #aaa;"></i>
+                    </span>
+                </div>
+            </div>
+        </form>
+        <button type="submit" style="border-radius: 20px; width: 10rem; background-color: #67C3DC; font-weight: bold; margin-bottom: 2rem;" class="btn btn-primary btn-block ml-auto" data-toggle="modal" data-target="#addAuthorModal">
+            Add Author
+        </button>
+    </div>
+</div>
+
+<div class="modal fade" id="addAuthorModal" tabindex="-1" role="dialog" aria-labelledby="addAuthorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 25px; padding: 3rem;">
+            <div class="modal-body">
+                <form method="post" action="{% url 'authors' %}">
+                    {% csrf_token %}
+                
+                    <div class="form-group">
+                        <input type="text" name="name" class="input" placeholder="Author Name:" pattern="[a-zA-Z]+" title="Please enter only alphabets" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <input type="text" name="username" class="input" placeholder="Username:" pattern="[a-zA-Z0-9!@#$%^&*()-_]+" title="Alphabets, special characters, and numbers are allowed" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <input type="email" name="email" class="input" placeholder="Email:" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email address" required>
+                    </div>
+                
+                    <div class="d-flex justify-content-between">
+                        <button type="button" style="border-radius: 20px; margin-top: 2rem; background-color: #F1F1F1; width: 10rem; color: black; border: 1px solid black;" class="btn btn-primary btn-block" data-dismiss="modal">Cancel</button>
+                
+                        <button type="submit" style="border-radius: 20px; margin-top: 2rem; background-color: #67C3DC; font-weight: bold; width: 10rem; border: none;" class="btn btn-primary btn-block">Add</button>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<table class="table table-bordered" style="margin-left: 1rem; margin-right: 2rem;">
+    <thead style="background-color:white;font-weight:400;color:grey;">
+      <tr>
+        <th>No</th>
+        <th>Author Name</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Action</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for author in authors %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ author.name }}</td>
+          <td>{{ author.username }}</td>
+          <td>{{ author.email }}</td>
+          <td>
+              <a href="{% url 'view_books' author.id %}" style="margin-left:1rem;"  title="View Books">
+                  <i class="far fa-eye"></i>
+                </a>
+                <button type="button" style="margin-left:1rem;margin-right:-2rem;" data-toggle="modal" data-target="#editAuthorModal{{ author.id }}" title="Edit Author">
+                    <i class="far fa-edit"></i>
+                </button>
+            </td>
+            <td>
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="statusSwitch{{ forloop.counter }}" {% if author.is_active %}checked{% endif %}>
+                    <label class="custom-control-label" for="statusSwitch{{ forloop.counter }}"></label>
+                </div>
+          </td>
+        </tr>
+  
+<div class="modal fade" id="editAuthorModal{{ author.id }}" tabindex="-1" role="dialog" aria-labelledby="editAuthorModalLabel{{ author.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 25px; padding: 3rem;">
+            <div class="modal-body">
+                <form method="post" action="{% url 'edit-author' author.id %}">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="name">Author Name:</label>
+                        <input type="text" class="form-control input" name="name" value="{{ author.name }}" pattern="[a-zA-Z]+" title="Please enter only alphabets" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input type="text" class="form-control input" name="username" value="{{ author.username }}" placeholder="Username:" pattern="[a-zA-Z0-9!@#$%^&*()-_]+" title="Alphabets, special characters, and numbers are allowed" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" class="form-control input" name="email" value="{{ author.email }}" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="is_active">Status:</label>
+                        <select class="form-control input" name="is_active" required>
+                            <option value="True" {% if author.is_active %}selected{% endif %}>Active</option>
+                            <option value="False" {% if not author.is_active %}selected{% endif %}>Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" style="border-radius: 20px; margin-top: 2rem; background-color: #F1F1F1; width: 10rem; color: black; border: 1px solid black;" class="btn btn-primary btn-block" data-dismiss="modal">Cancel</button>
+
+                        <button type="submit" style="border-radius: 20px; margin-top: 2rem; background-color: #67C3DC; font-weight: bold; width: 10rem; border: none;" class="btn btn-primary btn-block">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+      {% endfor %}
+      {% if not authors %}
+            <tr>
+                <td colspan="6" class="text-center">No authors found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+  </table>
+  <div class="pagination d-flex justify-content-center mt-3">
+    {% if authors.has_previous %}
+        <a href="?page={{ authors.previous_page_number }}" class="mr-2">Previous</a>
+    {% endif %}
+
+    <span class="current">
+        Page {{ authors.number }} of {{ authors.paginator.num_pages }}
+    </span>
+
+    {% if authors.has_next %}
+        <a href="?page={{ authors.next_page_number }}" class="ml-2">Next</a>
+    {% endif %}
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        
+        var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+        
+        $('.custom-control-input').change(function() {
+            var isChecked = $(this).prop('checked');
+            var authorId = $(this).attr('id').replace('statusSwitch', '');
+
+        
+            $.ajax({
+                type: 'POST',
+                url: '/update_author_status/',  
+                data: {
+                    'author_id': authorId,
+                    'is_active': isChecked,
+                    'csrfmiddlewaretoken': csrftoken  
+                },
+                success: function(response) {
+                    console.log(response);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    });
+</script>
+
+  
+
+{% endblock %}
