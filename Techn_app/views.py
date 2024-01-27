@@ -274,9 +274,12 @@ class ListAllAuthorStatusOn(generics.ListAPIView): #LISTING ALL AUTHOR WITH STAT
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'username', 'email']  
 
+    def get_queryset(self):
+        return Author.objects.filter(is_active=True)
+
     def get(self, request, *args, **kwargs):
-        author = self.filter_queryset(self.queryset)
-        serializer = AuthorSerializer(author, many=True)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = AuthorSerializer(queryset, many=True)
         return Response({
             'status': "success",
             'message': "Listed all authors with status on successfully",
@@ -308,9 +311,12 @@ class ListAllBookStatusOn(generics.ListAPIView): #LISTING ALL BOOKS WITH STATUS 
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']  
     
-    def get(self,request):
-        books = self.filter_queryset(self.queryset)
-        serializer = BookSerializer(books, many=True)
+    def get_queryset(self):
+        return Book.objects.filter(is_active=True)
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = BookSerializer(queryset, many=True)
         return Response({
             'status': "success",
             'message': "Listed all Books with status on successfully",
