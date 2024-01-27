@@ -16,6 +16,36 @@
     table {
         background-color: white;
     }
+    .messages {
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #dff0d8; 
+        border: 1px solid #3c763d; 
+        color: #3c763d; 
+        border-radius: 5px;
+    }
+
+    .messages ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .messages li {
+        margin: 0;
+        padding: 5px 10px;
+    }
+
+    .messages .success {
+        background-color: #dff0d8;
+        border-color: #3c763d; 
+        color: #3c763d; 
+    }
+
+    .messages .error {
+        background-color: #f2dede;
+        border-color: #a94442;
+    color: #a94442; 
+    }
 </style>
 
 <div class="container">
@@ -42,6 +72,15 @@
 </div>
 
 <div class="container">
+    {% if messages %}
+    <div class="messages">
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <div class="row justify-content-between mt-3 ml-3 mr-3">
         <form method="GET" action="{% url 'books' %}" class="d-flex">
             <div class="input-group" style="width: 25rem;margin-left:-1rem;">
@@ -115,8 +154,8 @@
                     </td>
                     <td>
                         <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="statusSwitch{{ forloop.counter }}" {% if book.is_active %}checked{% endif %}>
-                            <label class="custom-control-label" for="statusSwitch{{ forloop.counter }}"></label>
+                            <input type="checkbox" class="custom-control-input" id="statusSwitch{{ book.id }}" {% if book.is_active %}checked{% endif %}>
+                            <label class="custom-control-label" for="statusSwitch{{ book.id }}"></label>
                         </div>
                     </td>
                 </tr>

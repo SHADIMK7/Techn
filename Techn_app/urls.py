@@ -5,8 +5,8 @@ urlpatterns = [
     path('', UserLogin.as_view(), name='login'),
     path('logout/', logout, name='logout'),
     path('authors/', Authors.as_view(), name='authors'),
-    path('edit-author/<int:author_id>/', EditAuthor.as_view(), name='edit-author'),
     path('update_author_status/', update_author_status, name='update_author_status'),
+    path('edit-author/<int:author_id>/', EditAuthor.as_view(), name='edit-author'),
     path('edit-book/<int:book_id>/', EditBooks.as_view(), name='edit-book'),
     path('update_book_status/', update_book_status, name='update_book_status'),
 

@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.contrib.auth import authenticate, login
@@ -10,6 +9,10 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from rest_framework import generics, status, filters
 from .serializers import *
 from rest_framework.response import Response
+from .dependencies import generate_book_code
+from django.contrib import messages
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 
 
@@ -30,6 +33,7 @@ class UserLogin(View):
             login(request, user)
             return redirect('authors')
         else:
+            messages.error(request,"Please enter valid credentials")
             return redirect('login')
         
         
@@ -44,10 +48,10 @@ class Authors(View):
         if request.user.is_authenticated:
             search_query = request.GET.get('search', '')
             
-            authors_list = Author.objects.filter(Q(name__icontains=search_query))
+            authors_list = Author.objects.filter(Q(name__icontains=search_query)).order_by('name')
 
             if not search_query:
-                authors_list = Author.objects.all()
+                authors_list = Author.objects.all().order_by('name')
 
             paginator = Paginator(authors_list, 4)
             page = request.GET.get('page', 1)
@@ -58,8 +62,9 @@ class Authors(View):
                 authors = paginator.page(1)
             except EmptyPage:
                 authors = paginator.page(paginator.num_pages)
-
-            author_count = len(authors_list)
+            
+            authorss = Author.objects.all().order_by('name')
+            author_count = len(authorss)
             books = Book.objects.all()
             book_count = len(books)
 
@@ -71,11 +76,23 @@ class Authors(View):
         name = request.POST.get('name')
         username = request.POST.get('username')
         email = request.POST.get('email')
-        is_active = request.POST.get('is_active')
 
-        author = Author.objects.create(name=name, username=username, email=email, is_active=is_active == "True")
+        if Author.objects.filter(name=name).exists():
+            messages.error(request, 'Author with this name already exists.')
+            return redirect('authors')
+
+        if Author.objects.filter(username=username).exists():
+            messages.error(request, 'Author with this username already exists.')
+            return redirect('authors')
+
+        if Author.objects.filter(email=email).exists():
+            messages.error(request, 'Author with this email already exists.')
+            return redirect('authors')
+
+        author = Author.objects.create(name=name, username=username, email=email, is_active=True)
         author.save()
 
+        messages.success(request, 'Author created successfully.')
         return redirect('authors')
     
 def update_author_status(request):
@@ -84,11 +101,12 @@ def update_author_status(request):
 
     is_active = is_active_str.lower() == 'true'
 
-    author = Author.objects.get(pk=author_id)
+    author = get_object_or_404(Author, pk=author_id)
+
     author.is_active = is_active
     author.save()
 
-    return JsonResponse({'status': 'success'})  
+    return JsonResponse({'status': 'success', 'message': 'Author status updated successfully'})
 
 class EditAuthor(View):
     def post(self, request, author_id):
@@ -100,13 +118,31 @@ class EditAuthor(View):
             email = request.POST.get('email')
             is_active = request.POST.get('is_active') == 'True'
 
+            try:
+                validate_email(email)
+            except ValidationError:
+                messages.error(request, 'Please enter a valid email address.')
+                return redirect('authors')
+
+            if Author.objects.filter(name=name).exclude(pk=author.id).exists():
+                messages.error(request, 'Author with this name already exists.')
+                return redirect('authors')
+
+            if Author.objects.filter(username=username).exclude(pk=author.id).exists():
+                messages.error(request, 'Author with this username already exists.')
+                return redirect('authors')
+
+            if Author.objects.filter(email=email).exclude(pk=author.id).exists():
+                messages.error(request, 'Author with this email already exists.')
+                return redirect('authors')
+
             author.name = name
             author.username = username
             author.email = email
             author.is_active = is_active
-
             author.save()
 
+            messages.success(request, 'Author updated successfully.')
             return redirect('authors')
         else:
             return redirect('login')
@@ -117,7 +153,7 @@ class Books(View):
     def get(self, request):
         if request.user.is_authenticated:
             search_query = request.GET.get('search', '')
-            books_list = Book.objects.filter(title__icontains=search_query)
+            books_list = Book.objects.filter(title__icontains=search_query).order_by('title')
             paginator = Paginator(books_list, 4)
             page = request.GET.get('page', 1)
 
@@ -130,7 +166,7 @@ class Books(View):
                 
             authors = Author.objects.all()
             author_count = len(authors)
-            bookss = Book.objects.all()
+            bookss = Book.objects.all().order_by('title')
             book_count = len(bookss)
             return render(request, 'Books.html', {'books': books, 'authors': authors, 'author_count': author_count, 'book_count': book_count})
         else:
@@ -141,8 +177,12 @@ class Books(View):
         author_id = request.POST.get('author')
 
         author = Author.objects.get(pk=author_id)
+        
+        if Book.objects.filter(title=book_name).exists():
+            messages.error(request, 'Book with this name already exists.')
+            return redirect('books')
 
-        book = Book.objects.create(author=author, title=book_name, is_active=True)
+        book = Book.objects.create(author=author, title=book_name,book_code=generate_book_code(self), is_active=True)
         book.save()
 
         return redirect('books')
@@ -162,6 +202,9 @@ class EditBooks(View):
             book.title = book_title
             book.author = author
             
+            if Book.objects.filter(title=book_title).exclude(pk=book_id).exists():
+                messages.error(request, 'Book with this name already exists.')
+                return redirect('books')
             book.save()
             return redirect('books')
         else:
@@ -210,7 +253,7 @@ class ViewBooks(View):
         author = get_object_or_404(Author, pk=author_id)
 
         book_name = request.POST.get('book_name')
-        new_book = Book.objects.create(author=author, title=book_name, is_active=True)
+        new_book = Book.objects.create(author=author, title=book_name,book_code =generate_book_code(self) , is_active=True)
         new_book.save()
 
         return redirect('view_books', author_id=author_id)
@@ -284,5 +327,3 @@ class BookView(generics.ListAPIView): # LISTS SPECIFIC BOOK
         pk = self.kwargs['pk']
         return Book.objects.filter(pk=pk)
     
-    
-

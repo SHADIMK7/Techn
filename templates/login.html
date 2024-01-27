@@ -1,67 +1,171 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <title>Login Form</title>
   <style>
     body {
-      background-color: #F1F1F1;
       margin: 0;
-      overflow: hidden;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #F1F1F1;
     }
-    .centered-content {
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .left-half {
+      flex: 1;
+      background-image: url('{% static "images/pexels-thought-catalog-2228557.jpg" %}');
+      background-size: cover;
+      background-position: center;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    
-    .col-md-6 img {
-      height: 100vh;
-      width: 100%;
+
+    .right-half {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
-    
-    .login-form {
-      max-width: 300px;
+
+    .logo {
+      height: 80px;
+      width: 18rem;
+      margin-bottom: 50px;
+      margin-left: 20px;
     }
+
     .rounded-input {
-        border-radius: 20px;
-        background-color: #F1F1F1; 
-        border: 1px solid #ced4da; 
-        padding: 10px; 
+      border-radius: 20px;
+      background-color: #F1F1F1;
+      border: 1px solid #ced4da;
+      padding: 10px;
+      width: 23rem;
+      box-sizing: border-box;
+    }
+
+    .rounded-input:focus {
+      box-shadow: none;
+      background-color: #F1F1F1;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .btn-block {
+      width: 23rem;
+      height: 2.2rem;
+      border: none;
+      border-radius: 20px;
+      margin-top: 2rem;
+      background-color: #67C3DC;
+      font-weight: bold;
+      color: #fff;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-block:hover {
+      background-color: #5498B7;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        flex-direction: column;
       }
-      .rounded-input:focus {
-        box-shadow: none;
-        background-color: #F1F1F1;
+
+      .right-half {
+        margin-top: 20px;
       }
+
+      .logo {
+        margin-left: 0;
+      }
+
+      .rounded-input,
+      .btn-block {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+    .messages {
+        margin: 20px 0;
+        padding: 10px;
+        background-color: #dff0d8; 
+        border: 1px solid #3c763d; 
+        color: #3c763d; 
+        border-radius: 5px;
+    }
+
+    .messages ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .messages li {
+        margin: 0;
+        padding: 5px 10px;
+    }
+
+    .messages .success {
+        background-color: #dff0d8;
+        border-color: #3c763d; 
+        color: #3c763d; 
+    }
+
+    .messages .error {
+        background-color: #f2dede;
+        border-color: #a94442;
+        color: #a94442; 
+    }
+
   </style>
 </head>
 <body>
-    <div class="row centered-content">
-      <div class="col-md-6" style="padding-bottom:15rem;">
-        <img src="{% static 'images/pexels-thought-catalog-2228557.jpg' %}" alt="Your Image" class="img-fluid">
-      </div>
-      <div class="col-md-6">
-        <div class="text-center mb-4">
-          <img src="{% static 'logo/login-high-resolution-logo-black-transparent.png' %}" style="height:4.8rem;width:17rem;margin-left:-4rem;margin-bottom:1rem;" alt="Your Logo" class="img-fluid">
-        </div>
-        <form style="width: 25rem; height: 30rem;margin-left:8rem;" action="{% url 'login' %}" method="POST">
+  <div class="container">
+    <div class="left-half"></div>
+    <div class="right-half">
+      {% if messages %}
+    <div class="messages">
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+      <div class="login-form">
+        <img src="{% static 'logo/login-high-resolution-logo-black-transparent.png' %}" alt="Logo" class="logo">
+        <form class="login-form" action="{% url 'login' %}" method="POST">
           {% csrf_token %}
-          
+
           <div class="form-group">
             <label for="username">User Name</label>
             <input type="text" class="form-control rounded-input" name="username">
           </div>
-        
+
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" class="form-control rounded-input" name="password">
           </div>
-        
-          <button type="submit" style="border-radius:20px;margin-top:2rem; background-color: #67C3DC; font-weight: bold;" class="btn btn-primary btn-block">Login</button>
+          <button type="submit" class="btn-block">Login</button>
         </form>
       </div>
     </div>
+  </div>
 </body>
 </html>

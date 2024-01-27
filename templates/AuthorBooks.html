@@ -17,14 +17,12 @@
         background-color: white;
     }
 </style>
-<!-- Display author details at the top -->
 <div class="container" style="margin-bottom:5rem;">
     <p>Author Name: <span style="font-weight: 500;">{{ author.name }}</span></p>
     <p>Username: <span style="font-weight: 500;">{{ author.username }}</p>
     <p>Email: <span style="font-weight: 500;">{{ author.email }}</p>
 </div>
 
-<!-- Search bar for searching books -->
 <div class="container">
     <div class="d-flex justify-content-between mt-3 ml-3 mr-3">
         <form method="GET" action="{% url 'view_books' author.id %}" class="d-flex">
@@ -37,7 +35,7 @@
                 </div>
             </div>
         </form>
-        <!-- Add Books Button -->
+
         <button type="submit" style="border-radius: 20px; width: 10rem; background-color: #67C3DC; font-weight: bold; margin-bottom: 2rem;" class="btn btn-primary btn-block ml-auto" data-toggle="modal" data-target="#addBookModal">
             Add Books
         </button>
@@ -47,13 +45,11 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content" style="border-radius: 25px; padding: 3rem;">
             <div class="modal-body">
-                <!-- Display the form for creating a new book -->
                 <form method="post" action="{% url 'view_books' author.id %}">
                     {% csrf_token %}
                 
                     <div class="form-group">
                         <input type="text" name="book_name" class="input" placeholder="Book Name:" pattern="[a-zA-Z]+" title="Please enter only letters" required>
-                        <!-- The pattern attribute restricts input to only letters -->
                     </div>
                 
                     <div class="form-group">
@@ -72,12 +68,12 @@
     </div>
 </div>
 
-<!-- Display the list of books in a table -->
 <table class="table table-bordered" style="margin-left: 1rem; margin-right: 2rem;">
     <thead style="background-color:white;font-weight:400;color:grey;">
     <tr>
       <th>No</th>
       <th>Book Name</th>
+      <th>Book code</th>
       <th>Created Date</th>
       <th>Status</th>
     </tr>
@@ -88,6 +84,7 @@
         <tr>
           <td>{{ forloop.counter }}</td>
           <td>{{ book.title }}</td>
+          <td>{{ book.book_code }}</td>
           <td>{{ book.created_date }}</td>
           <td>{% if book.is_active %}Active{% else %}Inactive{% endif %}</td>
         </tr>
